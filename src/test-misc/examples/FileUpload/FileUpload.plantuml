@@ -1,0 +1,121 @@
+@startuml FileUpload
+
+/'
+  This diagram is just a sample to show what the syntax can look like.
+  
+  We don't yet generate fully working examples for every supported language.
+  This starting template is language agnostic.
+'/
+
+' ///////////////////////////// STYLES /////////////////////////////
+' Define some colors for the states. Totally optional.
+skinparam state {
+    ' red style:
+    BackgroundColor<<red>> a20025
+    FontColor<<red>> white
+    ' dark style:
+    BackgroundColor<<dark>> 545454
+    FontColor<<dark>> white
+}
+
+' //////////////////////// STATE ORGANIZATION ///////////////////////
+' Note: StateSmith treats state names and events as case insensitive.
+' More info: https://github.com/StateSmith/StateSmith/wiki/PlantUML
+
+state IDLE <<dark>>
+
+state ACITVE_GROUP {
+    state PAUSED
+
+    state BUSY_GROUP {
+        state CACHING
+        state CREATING
+        state CALCULATING
+        state UPLOADING
+        state SENDING
+    }
+}
+
+' ///////////////////////// STATE HANDLERS /////////////////////////
+' Syntax https://github.com/StateSmith/StateSmith/wiki/Behaviors
+
+[*] -> IDLE
+
+'IDLE
+IDLE --> CACHING : send [hasAttachment(vars.message)]
+IDLE --> SENDING : send [!hasAttachment(vars.message)]
+
+'PAUSED
+PAUSED --> CREATING : resume [!hasResourceId(vars.message)]
+PAUSED --> CALCULATING : resume [hasResourceId(vars.message) && vars.fileOffset == 0]
+PAUSED --> UPLOADING : resume [vars.fileOffset > 0]
+
+'ACITVE_GROUP
+ACITVE_GROUP: exit / cleanupCache()
+ACITVE_GROUP: cancel / deleteResource()
+ACITVE_GROUP: didFail / deleteResource()
+ACITVE_GROUP --> IDLE : cancel
+ACITVE_GROUP --> IDLE : didFail
+
+'BUSY_GROUP
+BUSY_GROUP --> PAUSED : pause
+
+'CACHING
+CACHING: enter / cacheAttachment()
+CACHING --> CREATING : didCacheAttachment
+
+'CREATING
+CREATING: enter / createResource()
+CREATING: didCreateResource / notifyAttachmentCreated()
+CREATING --> CALCULATING : didCreateResource [vars.fileSize > 0]
+CREATING --> SENDING : didCreateResource [vars.fileSize == 0]
+
+'CALCULATING
+CALCULATING: enter / calculateFileSize()
+CALCULATING: 1. didCalculateFileSize / resetUploadStatus()
+CALCULATING --> UPLOADING : didCalculateFileSize
+
+'UPLOADING
+UPLOADING: enter / sendFileChunk()
+UPLOADING: 1. didUploadChunk / updateUploadStatus(chunkSize)
+UPLOADING: 2. didUploadChunk / notifyUploadProgress()
+UPLOADING --> UPLOADING : didUploadChunk [vars.fileOffset < vars.fileSize]
+UPLOADING --> SENDING : didUploadChunk [vars.fileOffset >= vars.fileSize]
+
+'SENDING
+SENDING: enter / sendMessage()
+SENDING: didSendMessage / notifyMessageSent()
+SENDING --> IDLE : didSendMessage
+
+' //////////////////////// StateSmith config ////////////////////////
+' The below special comment block sets the StateSmith configuration.
+' More info: https://github.com/StateSmith/StateSmith/issues/335
+' Feel free to remove or modify it as needed.
+
+/'! $CONFIG : toml
+[RenderConfig]
+FileTop = """
+    // Whatever you put in this `FileTop` section will end up 
+    // being printed at the top of every generated code file.
+    """
+AutoExpandedVars = """
+    var message: ChatRoomMessage?
+    var fileOffset = 0
+    var fileSize = 0
+    var chunkSize = 0
+    """
+
+[RenderConfig.Swift]
+Imports = """
+    // whatever you need to import here
+    """
+# BaseList = "MyUserBaseClass, MyUserProtocol"
+ClassCode = """
+    // Add custom code here to inject into the generated class.
+    // Inheritance or composition might be a better choice.
+    """
+
+[SmRunnerSettings]
+transpilerId = "Swift"
+'/
+@enduml

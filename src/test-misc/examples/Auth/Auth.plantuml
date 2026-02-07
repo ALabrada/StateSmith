@@ -1,0 +1,100 @@
+@startuml Auth
+
+' //////////////////////// STATE ORGANIZATION ///////////////////////
+' Note: StateSmith treats state names and events as case insensitive.
+' More info: https://github.com/StateSmith/StateSmith/wiki/PlantUML
+
+state NO_AUTH
+
+state LOADING_LOGOUT
+    state OFFLINE
+    state LOADING_SESSION
+    state WAITING
+    state ONLINE_GROUP {
+        state LOADING_LOGIN
+        state LOADING_PROFILE
+        state CONNECTING_EVENTS
+        state ACTIVE
+    }
+
+
+' ///////////////////////// STATE HANDLERS /////////////////////////
+' Syntax: https://github.com/StateSmith/StateSmith/wiki/Behaviors
+
+[*] -> NO_AUTH
+
+' NO_AUTH
+NO_AUTH --> LOADING_LOGIN : login
+
+' ONLINE_GROUP
+ONLINE_GROUP: exit / notifyInactive()
+ONLINE_GROUP --> WAITING : didFail
+ONLINE_GROUP --> OFFLINE : networkLost
+ONLINE_GROUP --> LOADING_LOGOUT : logout
+
+' OFFLINE
+OFFLINE: enter / notifyOffline()
+OFFLINE --> LOADING_SESSION : networkRestored
+OFFLINE --> NO_AUTH : logout
+
+' WAITING
+WAITING: enter / waitForRetry()
+WAITING --> LOADING_SESSION : retry
+WAITING --> OFFLINE : networkLost
+WAITING --> NO_AUTH : logout
+
+' LOADING_LOGOUT
+LOADING_LOGOUT: enter / sendLogoutRequest()
+LOADING_LOGOUT --> NO_AUTH : didFail
+LOADING_LOGOUT --> NO_AUTH : logoutLoaded
+
+' LOADING_SESSION
+LOADING_SESSION: enter / sendSessionRequest() 
+LOADING_SESSION --> LOADING_LOGIN : didFail
+LOADING_SESSION --> CONNECTING_EVENTS : sessionLoaded
+
+' LOADING_LOGIN
+LOADING_LOGIN: enter / sendLoginRequest() 
+LOADING_LOGIN --> LOADING_PROFILE : loginLoaded
+
+' LOADING_PROFILE
+LOADING_PROFILE: enter / sendProfileRequest() 
+LOADING_PROFILE --> CONNECTING_EVENTS : profileLoaded
+
+' CONNECTING_EVENTS
+CONNECTING_EVENTS: enter / connectEvents() 
+CONNECTING_EVENTS --> ACTIVE : didConnectEvents
+
+' ACTIVE
+ACTIVE: enter / notifyActive()
+
+
+' //////////////////////// StateSmith config ////////////////////////
+' The below special comment block sets the StateSmith configuration.
+' More info: https://github.com/StateSmith/StateSmith/issues/335
+
+/'! $CONFIG : toml
+
+[RenderConfig]
+FileTop = """
+    // Whatever you put in this `FileTop` section will end up 
+    // being printed at the top of every generated code file.
+    """
+AutoExpandedVars = """
+    var count: Int = 0 // this var can be referenced in diagram
+    """
+
+[RenderConfig.Kotlin]
+Imports = """
+    // whatever you need to import here
+    """
+# BaseList = "MyUserBaseClass, MyUserProtocol"
+ClassCode = """
+    // Add custom code here to inject into the generated class.
+    // Inheritance or composition might be a better choice.
+    """
+
+[SmRunnerSettings]
+transpilerId = "Kotlin"
+'/
+@enduml
