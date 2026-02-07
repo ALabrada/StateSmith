@@ -8,7 +8,7 @@
 
 
 // Generated state machine
-class Auth
+class Auth : AuthBase()
 {
 // Add custom code here to inject into the generated class.
 // Inheritance or composition might be a better choice.

@@ -59,7 +59,7 @@ public class FileUpload
     }
     
     // Variables. Can be used for inputs, outputs, user variables...
-    public var vars : Vars = Vars()()
+    public var vars : Vars = Vars()
     
     // State machine constructor. Must be called before start or dispatch event functions. Not thread safe.
     public init()
@@ -581,10 +581,10 @@ public class FileUpload
     private func UPLOADING_diduploadchunk()
     {
         // UPLOADING behavior
-        // uml: 1. didUploadChunk / { updateUploadStatus(chunkSize) }
+        // uml: 1. didUploadChunk / { updateUploadStatus(vars.chunkSize) }
         do {
-            // Step 1: execute action `updateUploadStatus(chunkSize)`
-            updateUploadStatus(self.vars.chunkSize)
+            // Step 1: execute action `updateUploadStatus(vars.chunkSize)`
+            updateUploadStatus(vars.chunkSize)
         } catch {} // end of behavior for UPLOADING
         
         // UPLOADING behavior

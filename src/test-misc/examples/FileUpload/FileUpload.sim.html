@@ -289,7 +289,7 @@ state ACITVE_GROUP {
 
                 UPLOADING : enter / #123; sendFileChunk() #125;
 
-                UPLOADING : 1. didUploadChunk / #123; updateUploadStatus(chunkSize) #125;
+                UPLOADING : 1. didUploadChunk / #123; updateUploadStatus(vars.chunkSize) #125;
 
                 UPLOADING : 2. didUploadChunk / #123; notifyUploadProgress() #125;
 
@@ -1053,10 +1053,10 @@ evaluateGuard = null;
     #UPLOADING_diduploadchunk()
     {
         // UPLOADING behavior
-        // uml: 1. didUploadChunk / { this.tracer?.log("⚡ FSM would execute action: " + "updateUploadStatus(chunkSize)"); }
+        // uml: 1. didUploadChunk / { this.tracer?.log("⚡ FSM would execute action: " + "updateUploadStatus(vars.chunkSize)"); }
         {
-            // Step 1: execute action `this.tracer?.log("⚡ FSM would execute action: " + "updateUploadStatus(chunkSize)");`
-            this.tracer?.log("⚡ FSM would execute action: " + "updateUploadStatus(chunkSize)");
+            // Step 1: execute action `this.tracer?.log("⚡ FSM would execute action: " + "updateUploadStatus(vars.chunkSize)");`
+            this.tracer?.log("⚡ FSM would execute action: " + "updateUploadStatus(vars.chunkSize)");
         } // end of behavior for UPLOADING
         
         // UPLOADING behavior

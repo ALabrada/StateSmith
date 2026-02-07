@@ -77,7 +77,7 @@ CALCULATING --> UPLOADING : didCalculateFileSize
 
 'UPLOADING
 UPLOADING: enter / sendFileChunk()
-UPLOADING: 1. didUploadChunk / updateUploadStatus(chunkSize)
+UPLOADING: 1. didUploadChunk / updateUploadStatus(vars.chunkSize)
 UPLOADING: 2. didUploadChunk / notifyUploadProgress()
 UPLOADING --> UPLOADING : didUploadChunk [vars.fileOffset < vars.fileSize]
 UPLOADING --> SENDING : didUploadChunk [vars.fileOffset >= vars.fileSize]
