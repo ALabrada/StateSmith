@@ -26,6 +26,7 @@ state IDLE <<dark>>
 
 state ACITVE_GROUP {
     state PAUSED
+    state RESUMING <<choice>>
 
     state BUSY_GROUP {
         state CACHING
@@ -46,9 +47,10 @@ IDLE --> CACHING : send [hasAttachment(vars.message)]
 IDLE --> SENDING : send [!hasAttachment(vars.message)]
 
 'PAUSED
-PAUSED --> CREATING : resume [!hasResourceId(vars.message)]
-PAUSED --> CALCULATING : resume [hasResourceId(vars.message) && vars.fileOffset == 0]
-PAUSED --> UPLOADING : resume [vars.fileOffset > 0]
+PAUSED --> RESUMING : resume
+RESUMING --> CREATING : [!hasResourceId(vars.message)]
+RESUMING --> CALCULATING : else
+RESUMING --> UPLOADING : [vars.fileOffset > 0]
 
 'ACITVE_GROUP
 ACITVE_GROUP: exit / cleanupCache()
