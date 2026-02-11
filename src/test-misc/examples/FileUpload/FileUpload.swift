@@ -430,8 +430,9 @@ public class FileUpload
         } catch {} // end of behavior for CALCULATING
         
         // CALCULATING behavior
-        // uml: didCalculateFileSize TransitionTo(UPLOADING)
-        do {
+        // uml: didCalculateFileSize [vars.fileSize > 0] TransitionTo(UPLOADING)
+        if vars.fileSize > 0
+        {
             // Step 1: Exit states until we reach `BUSY_GROUP` state (Least Common Ancestor for transition).
             self.CALCULATING_exit()
             
@@ -442,7 +443,23 @@ public class FileUpload
             
             // Step 4: complete transition. Ends event dispatch. No other behaviors are checked.
             return
-        } catch {} // end of behavior for CALCULATING
+        } // end of behavior for CALCULATING
+        
+        // CALCULATING behavior
+        // uml: didCalculateFileSize [vars.fileSize == 0] TransitionTo(SENDING)
+        if vars.fileSize == 0
+        {
+            // Step 1: Exit states until we reach `BUSY_GROUP` state (Least Common Ancestor for transition).
+            self.CALCULATING_exit()
+            
+            // Step 2: Transition action: ``.
+            
+            // Step 3: Enter/move towards transition target `SENDING`.
+            self.SENDING_enter()
+            
+            // Step 4: complete transition. Ends event dispatch. No other behaviors are checked.
+            return
+        } // end of behavior for CALCULATING
     }
     
     
@@ -477,9 +494,8 @@ public class FileUpload
         } catch {} // end of behavior for CREATING
         
         // CREATING behavior
-        // uml: didCreateResource [vars.fileSize > 0] TransitionTo(CALCULATING)
-        if vars.fileSize > 0
-        {
+        // uml: didCreateResource TransitionTo(CALCULATING)
+        do {
             // Step 1: Exit states until we reach `BUSY_GROUP` state (Least Common Ancestor for transition).
             self.CREATING_exit()
             
@@ -490,23 +506,7 @@ public class FileUpload
             
             // Step 4: complete transition. Ends event dispatch. No other behaviors are checked.
             return
-        } // end of behavior for CREATING
-        
-        // CREATING behavior
-        // uml: didCreateResource [vars.fileSize == 0] TransitionTo(SENDING)
-        if vars.fileSize == 0
-        {
-            // Step 1: Exit states until we reach `BUSY_GROUP` state (Least Common Ancestor for transition).
-            self.CREATING_exit()
-            
-            // Step 2: Transition action: ``.
-            
-            // Step 3: Enter/move towards transition target `SENDING`.
-            self.SENDING_enter()
-            
-            // Step 4: complete transition. Ends event dispatch. No other behaviors are checked.
-            return
-        } // end of behavior for CREATING
+        } catch {} // end of behavior for CREATING
     }
     
     

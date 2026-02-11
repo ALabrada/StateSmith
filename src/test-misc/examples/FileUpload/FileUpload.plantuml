@@ -69,13 +69,13 @@ CACHING --> CREATING : didCacheAttachment
 'CREATING
 CREATING: enter / createResource()
 CREATING: didCreateResource / notifyAttachmentCreated()
-CREATING --> CALCULATING : didCreateResource [vars.fileSize > 0]
-CREATING --> SENDING : didCreateResource [vars.fileSize == 0]
+CREATING --> CALCULATING : didCreateResource
 
 'CALCULATING
 CALCULATING: enter / calculateFileSize()
 CALCULATING: 1. didCalculateFileSize / resetUploadStatus()
-CALCULATING --> UPLOADING : didCalculateFileSize
+CALCULATING --> UPLOADING : didCalculateFileSize [vars.fileSize > 0]
+CALCULATING --> SENDING : didCalculateFileSize [vars.fileSize == 0]
 
 'UPLOADING
 UPLOADING: enter / sendFileChunk()

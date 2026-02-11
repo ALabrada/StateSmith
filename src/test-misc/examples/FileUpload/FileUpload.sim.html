@@ -331,11 +331,11 @@ BUSY_GROUP --> PAUSED : pause
 
 CACHING --> CREATING : didCacheAttachment
 
-CREATING --> CALCULATING : didCreateResource [vars.fileSize > 0]
+CREATING --> CALCULATING : didCreateResource
 
-CREATING --> SENDING : didCreateResource [vars.fileSize == 0]
+CALCULATING --> UPLOADING : didCalculateFileSize [vars.fileSize > 0]
 
-CALCULATING --> UPLOADING : didCalculateFileSize
+CALCULATING --> SENDING : didCalculateFileSize [vars.fileSize == 0]
 
 UPLOADING --> UPLOADING : didUploadChunk [vars.fileOffset < vars.fileSize]
 
@@ -854,7 +854,25 @@ evaluateGuard = null;
         } // end of behavior for CALCULATING
         
         // CALCULATING behavior
-        // uml: didCalculateFileSize / { this.tracer?.edgeTransition("edge12"); } TransitionTo(UPLOADING)
+        // uml: didCalculateFileSize [this.tracer?.log("🛡️ User evaluating guard: " + "vars.fileSize > 0") || this.evaluateGuard("CALCULATING","didCalculateFileSize [vars.fileSize > 0] TransitionTo(UPLOADING)")] / { this.tracer?.edgeTransition("edge11"); } TransitionTo(UPLOADING)
+        if (this.tracer?.log("🛡️ User evaluating guard: " + "vars.fileSize > 0") || this.evaluateGuard("CALCULATING","didCalculateFileSize [vars.fileSize > 0] TransitionTo(UPLOADING)"))
+        {
+            // Step 1: Exit states until we reach `BUSY_GROUP` state (Least Common Ancestor for transition).
+            this.#CALCULATING_exit();
+            
+            // Step 2: Transition action: `this.tracer?.edgeTransition("edge11");`.
+            this.tracer?.edgeTransition("edge11");
+            
+            // Step 3: Enter/move towards transition target `UPLOADING`.
+            this.#UPLOADING_enter();
+            
+            // Step 4: complete transition. Ends event dispatch. No other behaviors are checked.
+            return;
+        } // end of behavior for CALCULATING
+        
+        // CALCULATING behavior
+        // uml: didCalculateFileSize [this.tracer?.log("🛡️ User evaluating guard: " + "vars.fileSize == 0") || this.evaluateGuard("CALCULATING","didCalculateFileSize [vars.fileSize == 0] TransitionTo(SENDING)")] / { this.tracer?.edgeTransition("edge12"); } TransitionTo(SENDING)
+        if (this.tracer?.log("🛡️ User evaluating guard: " + "vars.fileSize == 0") || this.evaluateGuard("CALCULATING","didCalculateFileSize [vars.fileSize == 0] TransitionTo(SENDING)"))
         {
             // Step 1: Exit states until we reach `BUSY_GROUP` state (Least Common Ancestor for transition).
             this.#CALCULATING_exit();
@@ -862,8 +880,8 @@ evaluateGuard = null;
             // Step 2: Transition action: `this.tracer?.edgeTransition("edge12");`.
             this.tracer?.edgeTransition("edge12");
             
-            // Step 3: Enter/move towards transition target `UPLOADING`.
-            this.#UPLOADING_enter();
+            // Step 3: Enter/move towards transition target `SENDING`.
+            this.#SENDING_enter();
             
             // Step 4: complete transition. Ends event dispatch. No other behaviors are checked.
             return;
@@ -918,8 +936,7 @@ evaluateGuard = null;
         } // end of behavior for CREATING
         
         // CREATING behavior
-        // uml: didCreateResource [this.tracer?.log("🛡️ User evaluating guard: " + "vars.fileSize > 0") || this.evaluateGuard("CREATING","didCreateResource [vars.fileSize > 0] TransitionTo(CALCULATING)")] / { this.tracer?.edgeTransition("edge10"); } TransitionTo(CALCULATING)
-        if (this.tracer?.log("🛡️ User evaluating guard: " + "vars.fileSize > 0") || this.evaluateGuard("CREATING","didCreateResource [vars.fileSize > 0] TransitionTo(CALCULATING)"))
+        // uml: didCreateResource / { this.tracer?.edgeTransition("edge10"); } TransitionTo(CALCULATING)
         {
             // Step 1: Exit states until we reach `BUSY_GROUP` state (Least Common Ancestor for transition).
             this.#CREATING_exit();
@@ -929,23 +946,6 @@ evaluateGuard = null;
             
             // Step 3: Enter/move towards transition target `CALCULATING`.
             this.#CALCULATING_enter();
-            
-            // Step 4: complete transition. Ends event dispatch. No other behaviors are checked.
-            return;
-        } // end of behavior for CREATING
-        
-        // CREATING behavior
-        // uml: didCreateResource [this.tracer?.log("🛡️ User evaluating guard: " + "vars.fileSize == 0") || this.evaluateGuard("CREATING","didCreateResource [vars.fileSize == 0] TransitionTo(SENDING)")] / { this.tracer?.edgeTransition("edge11"); } TransitionTo(SENDING)
-        if (this.tracer?.log("🛡️ User evaluating guard: " + "vars.fileSize == 0") || this.evaluateGuard("CREATING","didCreateResource [vars.fileSize == 0] TransitionTo(SENDING)"))
-        {
-            // Step 1: Exit states until we reach `BUSY_GROUP` state (Least Common Ancestor for transition).
-            this.#CREATING_exit();
-            
-            // Step 2: Transition action: `this.tracer?.edgeTransition("edge11");`.
-            this.tracer?.edgeTransition("edge11");
-            
-            // Step 3: Enter/move towards transition target `SENDING`.
-            this.#SENDING_enter();
             
             // Step 4: complete transition. Ends event dispatch. No other behaviors are checked.
             return;
